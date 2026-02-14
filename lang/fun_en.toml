@@ -1,1 +1,9 @@
 module_fun = "Fun"
+
+mt_fun_gizmore = "About gizmore"
+md_fun_gizmore = "gizmore means guess more and is a parody on Gremlins. Not only the movies, but in the World Wars, gremlins were held to be accountable for unknown hardware issues. Appropriate. Here have some oracle numbers: 49 176 59 59 88 44. Can you crack it?"
+
+mt_fun_cowsay = "Cowsay"
+md_fun_cowsay = "Use the cowsay binary for ascii art."
+err_process_return_code = "The process returned code %d."
+err_cowsay_missing = "The cowsay binary seems to be missing."
