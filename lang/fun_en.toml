@@ -7,3 +7,17 @@ mt_fun_cowsay = "Cowsay"
 md_fun_cowsay = "Use the cowsay binary for ascii art."
 err_process_return_code = "The process returned code %d."
 err_cowsay_missing = "The cowsay binary seems to be missing."
+
+mt_fun_manifesto = "Hacker manifesto"
+md_fun_manifesto = "A small manifesto for curious and responsible hackers."
+msg_fun_manifesto = """
+We learn by looking closer.
+We build to understand, share to multiply knowledge,
+and repair what can be repaired.
+
+Question authority, but verify the facts.
+Respect privacy, consent, and the people behind every machine.
+Make systems more open, more playful, and more humane.
+
+Curiosity is not a crime. Responsibility is the craft.
+"""
