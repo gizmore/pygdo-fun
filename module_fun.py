@@ -30,6 +30,20 @@ class module_fun(GDO_Module):
     async def on_user_quit(self, user: GDO_User):
         await self.remember_quit(user)
 
+    @classmethod
+    def for_irc(cls):
+        """Return Fun only when it is installed and enabled.
+
+        IRC lifecycle commands must not acquire a hard dependency on an
+        optional module.  They call this small bridge because JOIN/QUIT are
+        the authoritative connection boundaries for IRC.
+        """
+        loader = getattr(Application, 'LOADER', None)
+        if loader is None:
+            return None
+        fun = loader.get_module('fun')
+        return fun if fun.is_enabled() else None
+
     def remember_join(self, user: GDO_User, now: float | None = None):
         if user.is_persisted():
             type(self).JOINED_AT[user.get_id()] = Application.TIME if now is None else now

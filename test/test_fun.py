@@ -36,6 +36,7 @@ class FunTestCase(GDOTestCase):
     async def test_06_quitjoin_tracks_the_shortest_connection(self):
         user = cli_gizmore()
         fun = module_fun.instance()
+        user.save_setting('quitjoin_min', '0')
         fun.remember_join(user, 100)
         self.assertTrue(await fun.remember_quit(user, 194))
         self.assertEqual(94, user.get_setting_value('quitjoin_min'))
