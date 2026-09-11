@@ -11,7 +11,7 @@ class RouletteTest(unittest.TestCase):
         self.assertEqual(7, len(roulette.OUTCOMES))
         self.assertEqual(1, roulette.OUTCOMES.count('BANG'))
         self.assertEqual(5, roulette.OUTCOMES.count('click'))
-        self.assertEqual(1, roulette.OUTCOMES.count('*WTF*JAM*'))
+        self.assertEqual(1, roulette.OUTCOMES.count(roulette.JAM))
 
     def test_counters(self):
         for outcome in roulette.OUTCOMES:
@@ -32,7 +32,46 @@ class RouletteTest(unittest.TestCase):
                 self.assertEqual(2 if outcome == 'BANG' else 1, len(calls))
                 if outcome == 'BANG':
                     self.assertEqual(('roulette_bangs', 1), calls[1].args)
-                method.reply.assert_called_once_with('msg_fun_roulette', (outcome, 1, 6))
+                if outcome == roulette.JAM:
+                    method.reply.assert_called_once_with('msg_fun_roulette_jam')
+                    self.assertNotIn('channel', module_fun.ROULETTE_TURN)
+                    self.assertNotIn('channel', module_fun.ROULETTE_LAST_PLAYER)
+                else:
+                    method.reply.assert_called_once_with('msg_fun_roulette', (outcome, 1, 6))
+
+    def test_jam_starts_a_fresh_round(self):
+        module_fun.ROULETTE_LAST_PLAYER = {}
+        module_fun.ROULETTE_TURN = {'channel-1': 3}
+        method = object.__new__(roulette)
+        method._env_user = Mock()
+        method._env_user.get_id.return_value = 'user-1'
+        method._env_channel = Mock()
+        method._env_channel.get_id.return_value = 'channel-1'
+        method.reply = Mock()
+
+        with patch('gdo.fun.method.roulette.random.randrange', return_value=6):
+            method.gdo_execute()
+
+        method.reply.assert_called_once_with('msg_fun_roulette_jam')
+        self.assertNotIn('channel-1', module_fun.ROULETTE_TURN)
+        self.assertNotIn('channel-1', module_fun.ROULETTE_LAST_PLAYER)
+
+    def test_bang_starts_a_fresh_round(self):
+        module_fun.ROULETTE_LAST_PLAYER = {'channel-1': 'user-2'}
+        module_fun.ROULETTE_TURN = {'channel-1': 3}
+        method = object.__new__(roulette)
+        method._env_user = Mock()
+        method._env_user.get_id.return_value = 'user-1'
+        method._env_channel = Mock()
+        method._env_channel.get_id.return_value = 'channel-1'
+        method.reply = Mock()
+
+        with patch('gdo.fun.method.roulette.random.randrange', return_value=0):
+            method.gdo_execute()
+
+        method.reply.assert_called_once_with('msg_fun_roulette', ('BANG', 4, 6))
+        self.assertNotIn('channel-1', module_fun.ROULETTE_TURN)
+        self.assertNotIn('channel-1', module_fun.ROULETTE_LAST_PLAYER)
 
     def test_same_player_cannot_play_twice(self):
         method = object.__new__(roulette)
