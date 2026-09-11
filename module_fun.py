@@ -2,6 +2,7 @@ from gdo.base.Application import Application
 from gdo.base.GDO_Module import GDO_Module
 from gdo.base.GDT import GDT
 from gdo.core.GDO_User import GDO_User
+from gdo.core.GDT_UInt import GDT_UInt
 from gdo.date.GDT_Duration import GDT_Duration
 from gdo.date.Time import Time
 
@@ -11,14 +12,20 @@ class module_fun(GDO_Module):
     # Connection times are intentionally process-local. A quitjoin measures a
     # single continuous connection, not time accumulated across restarts.
     JOINED_AT: dict[str, float] = {}
+    ROULETTE_LAST_PLAYER: dict[str, str] = {}
+    ROULETTE_TURN: dict[str, int] = {}
 
     def gdo_user_config(self) -> list[GDT]:
         return [
+            GDT_UInt('roulette_uses').not_null().initial('0'),
+            GDT_UInt('roulette_bangs').not_null().initial('0'),
             GDT_Duration('quitjoin_min').not_null().units(2).initial('0'),
         ]
 
     def gdo_init(self):
         type(self).JOINED_AT = {}
+        type(self).ROULETTE_LAST_PLAYER = {}
+        type(self).ROULETTE_TURN = {}
 
     def gdo_subscribe_events(self):
         Application.EVENTS.subscribe('user_joined_server', self.on_user_joined)

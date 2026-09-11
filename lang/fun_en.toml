@@ -1,4 +1,13 @@
 module_fun = "Fun"
+mt_fun_roulette = "Text roulette"
+md_fun_roulette = "A fictional seven-outcome game: BANG, five clicks, or a jam."
+roulette_uses = "Roulette plays"
+roulette_bangs = "Roulette bangs"
+msg_fun_roulette = "%s [%d/%d]"
+err_fun_roulette_same_player = "Another player has to take a turn first."
+mt_fun_roulette_stats = "Roulette statistics"
+md_fun_roulette_stats = "Show roulette statistics for yourself or another user."
+msg_fun_roulette_stats = "%s played roulette %d times and got BANG %d times. Current game: %d/%d."
 
 mt_fun_quitjoin = "Quitjoin"
 md_fun_quitjoin = "Rank users by their shortest observed connection."
