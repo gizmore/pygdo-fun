@@ -85,6 +85,14 @@ class FunTestCase(GDOTestCase):
         self.assertEqual(90, method.get_config_server_value('quitjoin_server_record'))
         self.assertEqual(90, method.get_config_channel_value('quitjoin_channel_record'))
         self.assertEqual(80, user.get_setting_value('quitjoin_user_record'))
+
+        fun.remember_join(user, 600)
+        self.assertFalse(await fun.remember_quit(user, 600))
+        self.assertEqual(70, fun.get_config_value('quitjoin_world_record'))
+        self.assertEqual(90, method.get_config_server_value('quitjoin_server_record'))
+        self.assertEqual(90, method.get_config_channel_value('quitjoin_channel_record'))
+        self.assertEqual(80, user.get_setting_value('quitjoin_user_record'))
+
         out = cli_plug(user, '$quitjoin')
         self.assertIn('Quitjoin', out)
         self.assertIn(user.render_name(), out)

@@ -35,7 +35,7 @@ class quitjoin(MethodQueryTable):
     def gdo_method_config_channel(cls) -> list:
         # Record data is always kept; notices require the channel opt-in.
         return [
-            GDT_Bool('announce').initial('1'),
+            GDT_Bool('announce').initial('0'),
             GDT_Duration('quitjoin_channel_record').not_null().units(2).initial('0'),
             GDT_User('quitjoin_channel_record_holder'),
         ]

@@ -70,6 +70,11 @@ class module_fun(GDO_Module):
         if joined_at is None or not user.is_persisted():
             return False
         duration = max(0.0, (Application.TIME if now is None else now) - joined_at)
+        # IRC may deliver JOIN and QUIT in one Dog tick (notably while
+        # completing a names list). That is not a measurable connection and
+        # must never turn into the unbeatable 0.000s record.
+        if duration <= 0:
+            return False
         from gdo.fun.method.quitjoin import quitjoin
         server = user.get_server()
         method = quitjoin().env_server(server).env_user(user)
