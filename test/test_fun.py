@@ -1,7 +1,9 @@
 from gdo.base.Application import Application
 from gdo.core.GDO_UserSetting import GDO_UserSetting
 import os
+from unittest.mock import ANY, AsyncMock, MagicMock, patch
 from gdo.base.ModuleLoader import ModuleLoader
+from gdo.core.GDO_Channel import GDO_Channel
 from gdo.fun.GDT_CowsayType import GDT_CowsayType
 from gdo.fun.method.quitjoin import quitjoin
 from gdo.fun.module_fun import module_fun
@@ -124,6 +126,16 @@ class FunTestCase(GDOTestCase):
         self.assertEqual(0, method.get_config_channel_value('quitjoin_channel_record'))
         self.assertIsNone(GDO_UserSetting.get_setting(user, 'quitjoin_user_record'))
         self.assertEqual({}, fun.JOINED_AT)
+
+    async def test_066_quitjoin_reset_announces_to_opted_in_online_channels(self):
+        channel = MagicMock()
+        channel.is_online.return_value = True
+        channel.send_text = AsyncMock()
+        with patch.object(GDO_Channel, 'with_setting', return_value=[channel]) as opted_in:
+            await quitjoin().announce_reset(42, 3)
+
+        opted_in.assert_called_once_with(ANY, 'announce', '1')
+        channel.send_text.assert_awaited_once_with('msg_quitjoin_records_reset', (42, 3))
 
     def test_07_quitjoin_duration_rendering(self):
         self.assertEqual('02.123s', module_fun.render_quitjoin_duration(2.123))

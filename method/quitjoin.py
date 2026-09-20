@@ -105,7 +105,14 @@ class quitjoin(MethodQueryTable):
         active_runs = len(fun.JOINED_AT)
         fun.JOINED_AT.clear()
         deleted = len(user_settings) + len(server_settings) + len(channel_settings) + world_records
+        await self.announce_reset(deleted, active_runs)
         return self.reply('msg_quitjoin_reset', (deleted, active_runs))
+
+    async def announce_reset(self, deleted: int, active_runs: int):
+        """Tell currently connected channels which opted into announcements."""
+        for channel in GDO_Channel.with_setting(self, 'announce', '1'):
+            if channel.is_online():
+                await channel.send_text('msg_quitjoin_records_reset', (deleted, active_runs))
 
     def gdo_table(self) -> GDO:
         return GDO_User.table()
