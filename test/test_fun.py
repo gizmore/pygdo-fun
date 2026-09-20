@@ -1,4 +1,5 @@
 from gdo.base.Application import Application
+from gdo.core.GDO_UserSetting import GDO_UserSetting
 import os
 from gdo.base.ModuleLoader import ModuleLoader
 from gdo.fun.GDT_CowsayType import GDT_CowsayType
@@ -96,6 +97,33 @@ class FunTestCase(GDOTestCase):
         out = cli_plug(user, '$quitjoin')
         self.assertIn('Quitjoin', out)
         self.assertIn(user.render_name(), out)
+
+    async def test_065_quitjoin_reset_requires_confirmation_and_purges_records(self):
+        user = cli_gizmore()
+        fun = module_fun.instance()
+        server = user.get_server()
+        channel = server.get_or_create_channel('#quitjoin-reset-test')
+        method = quitjoin().env_server(server).env_channel(channel).env_user(user)
+        await fun.save_config_val('quitjoin_world_record', '10s')
+        await fun.save_config_val('quitjoin_world_record_holder', str(user.get_id()))
+        method.save_config_server('quitjoin_server_record', '11s')
+        method.save_config_server('quitjoin_server_record_holder', str(user.get_id()))
+        method.save_config_channel('quitjoin_channel_record', '12s')
+        method.save_config_channel('quitjoin_channel_record_holder', str(user.get_id()))
+        user.save_setting('quitjoin_user_record', '13s')
+        fun.remember_join(user, 100)
+
+        self.assertIn('iamsure', cli_plug(user, '$quitjoin --reset nope'))
+        out = cli_plug(user, '$quitjoin --reset iamsure')
+        self.assertIn('QuitJoin reset', out)
+        self.assertEqual(0, fun.get_config_value('quitjoin_world_record'))
+        # A real future JOIN/QUIT constructs a fresh method, just as the
+        # command does.  Its values must come back as their defaults.
+        method = quitjoin().env_server(server).env_channel(channel).env_user(user)
+        self.assertEqual(0, method.get_config_server_value('quitjoin_server_record'))
+        self.assertEqual(0, method.get_config_channel_value('quitjoin_channel_record'))
+        self.assertIsNone(GDO_UserSetting.get_setting(user, 'quitjoin_user_record'))
+        self.assertEqual({}, fun.JOINED_AT)
 
     def test_07_quitjoin_duration_rendering(self):
         self.assertEqual('02.123s', module_fun.render_quitjoin_duration(2.123))
