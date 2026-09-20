@@ -37,6 +37,12 @@ err_cowsay_missing = "The cowsay binary seems to be missing."
 
 mt_fun_manifesto = "Hacker manifesto"
 md_fun_manifesto = "A small manifesto for curious and responsible hackers."
+mt_fun_hh = "Hatted Hacker"
+md_fun_hh = "Explain the HH abbreviation in the channel language."
+msg_fun_hh = "HH has meant Hatted Hacker to us for several years - a hacker who has earned their first hat."
+mt_fun_afd = "Away From Device"
+md_fun_afd = "Explain the AFD abbreviation."
+msg_fun_afd = "Away From Device is said by a hacktivist when they leave their phone alone for a while."
 msg_fun_manifesto = """
 We learn by looking closer.
 We build to understand, share to multiply knowledge,

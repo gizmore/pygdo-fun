@@ -1,13 +1,54 @@
 from gdo.base.Application import Application
 from gdo.core.GDO_UserSetting import GDO_UserSetting
 import os
+import unittest
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
 from gdo.base.ModuleLoader import ModuleLoader
 from gdo.core.GDO_Channel import GDO_Channel
 from gdo.fun.GDT_CowsayType import GDT_CowsayType
 from gdo.fun.method.quitjoin import quitjoin
+from gdo.fun.method.hh import hh
+from gdo.fun.method.afd import afd
 from gdo.fun.module_fun import module_fun
+from gdo.base.Trans import tiso
 from gdotest.TestUtil import reinstall_module, text_plug, GDOTestCase, cli_plug, cli_gizmore, all_private_messages, install_module
+
+
+class HattedHackerTest(unittest.IsolatedAsyncioTestCase):
+
+    def setUp(self):
+        Application.init(os.path.dirname(__file__ + "/../../../../"))
+        Application.init_cli()
+
+    async def test_uses_local_channel_translations_without_a_parameter(self):
+        channel = MagicMock()
+        channel.get_lang_iso.return_value = 'de'
+        method = hh().env_channel(channel)
+        method.empty = MagicMock(side_effect=lambda text: text)
+        self.assertEqual(tiso('de', 'msg_fun_hh'), await method.gdo_execute())
+
+    async def test_uses_the_local_english_text(self):
+        channel = MagicMock()
+        channel.get_lang_iso.return_value = 'en'
+        method = hh().env_channel(channel)
+        method.empty = MagicMock(side_effect=lambda text: text)
+        self.assertEqual(tiso('en', 'msg_fun_hh'), await method.gdo_execute())
+
+    async def test_uses_the_local_korean_text(self):
+        channel = MagicMock()
+        channel.get_lang_iso.return_value = 'ko'
+        method = hh().env_channel(channel)
+        method.empty = MagicMock(side_effect=lambda text: text)
+        self.assertEqual(tiso('ko', 'msg_fun_hh'), await method.gdo_execute())
+
+    async def test_afd_returns_its_local_explanation(self):
+        self.assertEqual('afd', afd.gdo_trigger())
+        for language in ('en', 'de', 'ko'):
+            channel = MagicMock()
+            channel.get_lang_iso.return_value = language
+            method = afd().env_channel(channel)
+            method.empty = MagicMock(side_effect=lambda text: text)
+            self.assertEqual(tiso(language, 'msg_fun_afd'), method.gdo_execute())
 
 class FunTestCase(GDOTestCase):
 
