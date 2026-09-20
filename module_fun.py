@@ -38,13 +38,13 @@ class module_fun(GDO_Module):
         type(self).ROULETTE_TURN = {}
 
     def gdo_subscribe_events(self):
-        Application.EVENTS.subscribe('user_joined_server', self.on_user_joined)
-        Application.EVENTS.subscribe('user_quit_server', self.on_user_quit)
+        Application.EVENTS.subscribe('user_connected_server', self.on_user_connected)
+        Application.EVENTS.subscribe('user_disconnected_server', self.on_user_disconnected)
 
-    async def on_user_joined(self, user: GDO_User):
+    async def on_user_connected(self, user: GDO_User):
         self.remember_join(user)
 
-    async def on_user_quit(self, user: GDO_User):
+    async def on_user_disconnected(self, user: GDO_User):
         await self.remember_quit(user)
 
     @classmethod
