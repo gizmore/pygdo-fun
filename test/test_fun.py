@@ -78,6 +78,17 @@ class FunTestCase(GDOTestCase):
     async def test_05_gizmore(self):
         giz = cli_gizmore()
 
+    async def test_055_world_domination_is_a_text_only_joke(self):
+        giz = cli_gizmore()
+        out = cli_plug(giz, '$world_domination acquire every cat')
+        self.assertTrue(any(message in out for message in (
+            'This is not bizarroworld.',
+            'Your evil plan failed.',
+            'Syntax error in the evil plan.',
+            'Evil plan is running.',
+            'Database error.',
+        )))
+
     async def test_06_quitjoin_tracks_the_shortest_connection(self):
         user = cli_gizmore()
         fun = module_fun.instance()
