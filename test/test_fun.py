@@ -2,8 +2,10 @@ from gdo.base.Application import Application
 from gdo.core.GDO_UserSetting import GDO_UserSetting
 import os
 import unittest
+from datetime import date
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
 from gdo.base.ModuleLoader import ModuleLoader
+from gdo.base.Events import Events
 from gdo.core.GDO_Channel import GDO_Channel
 from gdo.fun.GDT_CowsayType import GDT_CowsayType
 from gdo.fun.method.quitjoin import quitjoin
@@ -12,6 +14,56 @@ from gdo.fun.method.afd import afd
 from gdo.fun.module_fun import module_fun
 from gdo.base.Trans import tiso
 from gdotest.TestUtil import reinstall_module, text_plug, GDOTestCase, cli_plug, cli_gizmore, all_private_messages, install_module
+
+
+class TeapotHeaderTest(unittest.TestCase):
+    def test_enum_stores_keys_and_defaults_to_always(self):
+        Application.init(os.path.dirname(__file__ + '/../../../../'))
+        Application.init_cli()
+        fun = module_fun()
+        config = fun.config_column('teapot_header')
+        self.assertEqual('always', fun.get_config_val('teapot_header'))
+        for mode in ('no', 'always', 'april_fools'):
+            self.assertTrue(config.validate(mode))
+            config.val(mode)
+            self.assertEqual(mode, fun.get_config_val('teapot_header'))
+        self.assertFalse(config.validate('never-ever'))
+
+    def test_http_modes_and_both_response_encodings(self):
+        fun = module_fun()
+        events = Events()
+        events.subscribe('http_response_headers', fun.on_http_response_headers)
+        with patch.object(Application, 'EVENTS', events, create=True), patch.object(Application, 'IS_HTTP', True):
+            for mode, day, expected in [
+                ('no', date(2026, 4, 1), False),
+                ('always', date(2026, 5, 2), True),
+                ('april_fools', date(2026, 4, 1), True),
+                ('april_fools', date(2026, 4, 2), False),
+            ]:
+                with self.subTest(mode=mode, day=day), patch.object(fun, 'get_config_val', return_value=mode), patch('gdo.fun.module_fun.date') as mocked_date:
+                    mocked_date.today.return_value = day
+                    Application.STORAGE.headers = {}
+                    wsgi = dict(Application.get_headers())
+                    asgi = dict(Application.get_headers_asgi())
+                    self.assertEqual(expected, 'x-http-teapot-temp-c' in wsgi)
+                    self.assertEqual(expected, b'x-http-teapot-temp-c' in asgi)
+                    if expected:
+                        self.assertEqual('100', wsgi['x-http-teapot-temp-c'])
+                        self.assertEqual(b'100', asgi[b'x-http-teapot-temp-c'])
+
+    def test_real_module_subscription_and_enum(self):
+        Application.init(os.path.dirname(__file__ + '/../../../../'))
+        Application.init_cli()
+        fun = module_fun()
+        config = fun.config_column('teapot_header')
+        fun.gdo_subscribe_events()
+        with patch.object(Application, 'IS_HTTP', True), patch('gdo.fun.module_fun.date') as mocked_date:
+            mocked_date.today.return_value = date(2026, 4, 1)
+            for mode, expected in [('no', False), ('always', True), ('april_fools', True)]:
+                with self.subTest(mode=mode):
+                    config.val(mode)
+                    Application.STORAGE.headers = {}
+                    self.assertEqual(expected, 'x-http-teapot-temp-c' in dict(Application.get_headers()))
 
 
 class HattedHackerTest(unittest.IsolatedAsyncioTestCase):

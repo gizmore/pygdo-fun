@@ -1,7 +1,10 @@
+from datetime import date
+
 from gdo.base.Application import Application
 from gdo.base.GDO_Module import GDO_Module
 from gdo.base.GDT import GDT
 from gdo.core.GDO_User import GDO_User
+from gdo.core.GDT_Enum import GDT_Enum
 from gdo.core.GDT_UInt import GDT_UInt
 from gdo.core.GDT_User import GDT_User
 from gdo.date.GDT_Duration import GDT_Duration
@@ -17,6 +20,7 @@ class module_fun(GDO_Module):
 
     def gdo_module_config(self) -> list[GDT]:
         return [
+            GDT_Enum('teapot_header').choices({'no': 'No', 'always': 'Always', 'april_fools': 'April Fools'}).not_null().initial('always'),
             GDT_Duration('quitjoin_at_leastn').not_null().units(2).initial('32s'),
             GDT_Duration('quitjoin_world_record').not_null().units(2).initial('0'),
             GDT_User('quitjoin_world_record_holder'),
@@ -38,8 +42,15 @@ class module_fun(GDO_Module):
         type(self).ROULETTE_TURN = {}
 
     def gdo_subscribe_events(self):
+        self.subscribe('http_response_headers', self.on_http_response_headers)
         Application.EVENTS.subscribe('user_connected_server', self.on_user_connected)
         Application.EVENTS.subscribe('user_disconnected_server', self.on_user_disconnected)
+
+    def on_http_response_headers(self):
+        mode = self.get_config_val('teapot_header')
+        today = date.today()
+        if mode == 'always' or (mode == 'april_fools' and today.month == 4 and today.day == 1):
+            Application.header('X-HTTP-TEAPOT-TEMP-C', '100')
 
     async def on_user_connected(self, user: GDO_User):
         self.remember_join(user)
