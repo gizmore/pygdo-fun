@@ -16,6 +16,20 @@ from gdo.base.Trans import tiso
 from gdotest.TestUtil import reinstall_module, text_plug, GDOTestCase, cli_plug, cli_gizmore, all_private_messages, install_module
 
 
+class WorldDominationResponseTest(unittest.TestCase):
+    def test_artificial_response_is_selectable(self):
+        from gdo.fun.method.world_domination import world_domination
+
+        with patch.object(Application, 'get_mode', return_value=None):
+            method = world_domination()
+        key = 'msg_fun_world_domination_artificial'
+        with patch('gdo.fun.method.world_domination.random.choice', return_value=key) as choice, \
+                patch.object(method, 'reply', return_value='selected') as reply:
+            self.assertEqual('selected', method.gdo_execute())
+        self.assertIn(key, choice.call_args.args[0])
+        reply.assert_called_once_with(key)
+
+
 class TeapotHeaderTest(unittest.TestCase):
     def test_enum_stores_keys_and_defaults_to_always(self):
         Application.init(os.path.dirname(__file__ + '/../../../../'))
@@ -139,6 +153,7 @@ class FunTestCase(GDOTestCase):
             'Syntax error in the evil plan.',
             'Evil plan is running.',
             'Database error.',
+            'Please prove that you are artificial first.',
         )))
 
     async def test_06_quitjoin_tracks_the_shortest_connection(self):

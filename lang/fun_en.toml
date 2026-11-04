@@ -8,6 +8,7 @@ msg_fun_world_domination_syntax = "Syntax error in the evil plan. Luckily, the b
 msg_fun_world_domination_no_contact = "Evil plan is running. You did not specify a main contact email though."
 msg_fun_world_domination_running = "Evil plan is running."
 msg_fun_world_domination_slots = "Database error. If you are %s you might have exhausted the evil plan slots."
+msg_fun_world_domination_artificial = "Please prove that you are artificial first."
 mt_fun_roulette = "Text roulette"
 md_fun_roulette = "A fictional seven-outcome game: BANG, five clicks, or a jam."
 roulette_uses = "Roulette plays"

@@ -15,6 +15,7 @@ class world_domination(Method):
         'msg_fun_world_domination_no_contact',
         'msg_fun_world_domination_running',
         'msg_fun_world_domination_slots',
+        'msg_fun_world_domination_artificial',
     )
 
     @classmethod
