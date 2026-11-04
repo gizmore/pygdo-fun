@@ -30,6 +30,18 @@ class WorldDominationResponseTest(unittest.TestCase):
         reply.assert_called_once_with(key)
 
 
+class GizmoreCommandTest(unittest.TestCase):
+    def test_direct_trigger_and_response(self):
+        from gdo.fun.method.gizmore import gizmore
+
+        self.assertEqual('gizmore', gizmore.gdo_trigger())
+        with patch.object(Application, 'get_mode', return_value=None):
+            method = gizmore()
+        with patch.object(method, 'msg', return_value='answer') as msg:
+            self.assertEqual('answer', method.gdo_execute())
+        msg.assert_called_once_with('md_fun_gizmore')
+
+
 class TeapotHeaderTest(unittest.TestCase):
     def test_enum_stores_keys_and_defaults_to_always(self):
         Application.init(os.path.dirname(__file__ + '/../../../../'))
